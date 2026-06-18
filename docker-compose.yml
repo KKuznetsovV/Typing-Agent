@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: oauth-mongodb
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: oauth-app
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: oauth-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongodb:27017/oauth-app
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      # Must be reachable from the browser — update for production
+      GITHUB_CALLBACK_URL: ${GITHUB_CALLBACK_URL:-http://localhost:3000/auth/github/callback}
+      JWT_SECRET: ${JWT_SECRET}
+      # URL the browser uses to reach the frontend
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Baked into the Vite bundle at build time; must be the URL the
+        # browser uses to reach the backend
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:3000}
+    container_name: oauth-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:

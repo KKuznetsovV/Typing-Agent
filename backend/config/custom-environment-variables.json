@@ -1,0 +1,21 @@
+{
+  "server": {
+    "port": "PORT",
+    "nodeEnv": "NODE_ENV"
+  },
+  "mongodb": {
+    "uri": "MONGODB_URI"
+  },
+  "github": {
+    "clientId": "GITHUB_CLIENT_ID",
+    "clientSecret": "GITHUB_CLIENT_SECRET",
+    "callbackUrl": "GITHUB_CALLBACK_URL"
+  },
+  "jwt": {
+    "secret": "JWT_SECRET",
+    "expiresIn": "JWT_EXPIRES_IN"
+  },
+  "frontend": {
+    "url": "FRONTEND_URL"
+  }
+}

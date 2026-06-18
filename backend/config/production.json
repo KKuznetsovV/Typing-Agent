@@ -1,0 +1,11 @@
+{
+  "server": {
+    "nodeEnv": "production"
+  },
+  "github": {
+    "callbackUrl": "https://your-domain.com/auth/github/callback"
+  },
+  "frontend": {
+    "url": "https://your-domain.com"
+  }
+}
