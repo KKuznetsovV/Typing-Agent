@@ -1,27 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { jwtConfig } from '../config';
+import { verifyToken } from '../services/auth.service';
 
-interface JwtPayload {
-  userId: string;
-  username: string;
-}
-
-export function authenticate(req: Request, res: Response, next: NextFunction): void {
+export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
+  const token =
+    (authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined) ||
+    req.cookies?.token;
 
-  if (!authHeader?.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'No token provided' });
+  if (!token) {
+    res.status(401).json({ message: 'Unauthorized' });
     return;
   }
 
-  const token = authHeader.slice(7);
-
   try {
-    const payload = jwt.verify(token, jwtConfig.secret) as JwtPayload;
-    req.jwtPayload = { userId: payload.userId, username: payload.username };
+    const payload = verifyToken(token);
+    req.user = payload;
     next();
   } catch {
-    res.status(401).json({ error: 'Invalid or expired token' });
+    res.status(401).json({ message: 'Unauthorized' });
   }
-}
+};

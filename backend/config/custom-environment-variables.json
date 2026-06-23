@@ -1,21 +1,27 @@
 {
-  "server": {
-    "port": "PORT",
-    "nodeEnv": "NODE_ENV"
-  },
-  "mongodb": {
-    "uri": "MONGODB_URI"
-  },
-  "github": {
-    "clientId": "GITHUB_CLIENT_ID",
-    "clientSecret": "GITHUB_CLIENT_SECRET",
-    "callbackUrl": "GITHUB_CALLBACK_URL"
-  },
+  "port": "PORT",
+  "mongoUri": "MONGO_URI",
   "jwt": {
     "secret": "JWT_SECRET",
     "expiresIn": "JWT_EXPIRES_IN"
   },
+  "github": {
+    "clientId": "GITHUB_CLIENT_ID",
+    "clientSecret": "GITHUB_CLIENT_SECRET",
+    "callbackUrl": "GITHUB_CALLBACK_URL",
+    "webhookUrl": "GITHUB_WEBHOOK_URL",
+    "webhookSecret": "GITHUB_WEBHOOK_SECRET"
+  },
   "frontend": {
     "url": "FRONTEND_URL"
+  },
+  "cors": {
+    "origin": "CORS_ORIGIN"
+  },
+  "openai": {
+    "enabled": "OPENAI_ENABLED",
+    "apiKey": "OPENAI_API_KEY",
+    "model": "OPENAI_MODEL",
+    "issueWebhookInstructions": "OPENAI_ISSUE_WEBHOOK_INSTRUCTIONS"
   }
 }

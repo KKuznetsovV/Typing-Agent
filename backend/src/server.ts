@@ -1,23 +1,16 @@
-import mongoose from 'mongoose';
-import { createApp } from './app';
-import { serverConfig, mongodbConfig } from './config';
+import app from './app';
+import { appConfig } from './config';
+import { connectDB } from './db/connection';
+import './passport/github.strategy';
 
-// Import global type augmentations
-import './types/global.d';
-
-async function main(): Promise<void> {
-  await mongoose.connect(mongodbConfig.uri);
-  console.log('Connected to MongoDB');
-
-  const app = createApp();
-  const port = serverConfig.port;
-
-  app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+async function start(): Promise<void> {
+  await connectDB();
+  app.listen(appConfig.port, () => {
+    console.log(`Server running on port ${appConfig.port}`);
   });
 }
 
-main().catch((err) => {
-  console.error('Failed to start server:', err);
+start().catch((error) => {
+  console.error('Failed to start server:', error);
   process.exit(1);
 });

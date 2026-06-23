@@ -1,21 +1,27 @@
 {
-  "server": {
-    "port": 3000,
-    "nodeEnv": "development"
-  },
-  "mongodb": {
-    "uri": "mongodb://localhost:27017/oauth-app"
+  "port": 3000,
+  "mongoUri": "mongodb://localhost:27017/oauth-app",
+  "jwt": {
+    "secret": "change-me-in-production",
+    "expiresIn": "7d"
   },
   "github": {
-    "clientId": "REPLACE_ME",
-    "clientSecret": "REPLACE_ME",
-    "callbackUrl": "http://localhost:3000/auth/github/callback"
-  },
-  "jwt": {
-    "secret": "change-this-secret-in-production",
-    "expiresIn": "7d"
+    "clientId": "Ov23lisfQ4tBF7UDeobx",
+    "clientSecret": "",
+    "callbackUrl": "http://localhost:3000/api/auth/github/callback",
+    "webhookUrl": "http://localhost:3000/api/webhooks/github",
+    "webhookSecret": ""
   },
   "frontend": {
     "url": "http://localhost:5173"
+  },
+  "cors": {
+    "origin": "http://localhost:5173"
+  },
+  "openai": {
+    "enabled": false,
+    "apiKey": "",
+    "model": "gpt-5-mini",
+    "issueWebhookInstructions": "You are an issue triage assistant. Summarize the issue and suggest the first concrete implementation steps. Keep the response short and actionable."
   }
 }

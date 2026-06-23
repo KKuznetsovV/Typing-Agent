@@ -1,57 +1,40 @@
-version: '3.9'
-
 services:
   mongodb:
     image: mongo:7
-    container_name: oauth-mongodb
-    restart: unless-stopped
-    volumes:
-      - mongo_data:/data/db
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: oauth-app
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    volumes:
+      - mongo_data:/data/db
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: oauth-backend
-    restart: unless-stopped
+    build: ./backend
     ports:
       - "3000:3000"
     environment:
-      PORT: 3000
-      NODE_ENV: production
-      MONGODB_URI: mongodb://mongodb:27017/oauth-app
+      NODE_ENV: development
+      MONGO_URI: mongodb://mongodb:27017/oauth-app
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-      # Must be reachable from the browser — update for production
-      GITHUB_CALLBACK_URL: ${GITHUB_CALLBACK_URL:-http://localhost:3000/auth/github/callback}
-      JWT_SECRET: ${JWT_SECRET}
-      # URL the browser uses to reach the frontend
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      GITHUB_CALLBACK_URL: ${GITHUB_CALLBACK_URL:-http://localhost:3000/api/auth/github/callback}
+      GITHUB_WEBHOOK_URL: ${GITHUB_WEBHOOK_URL:-http://localhost:3000/api/webhooks/github}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-dev-webhook-secret}
+      OPENAI_ENABLED: ${OPENAI_ENABLED:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
+      OPENAI_ISSUE_WEBHOOK_INSTRUCTIONS: ${OPENAI_ISSUE_WEBHOOK_INSTRUCTIONS:-You are an issue triage assistant. Summarize the issue and suggest the first concrete implementation steps. Keep the response short and actionable.}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
       args:
-        # Baked into the Vite bundle at build time; must be the URL the
-        # browser uses to reach the backend
-        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:3000}
-    container_name: oauth-frontend
-    restart: unless-stopped
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
     ports:
-      - "80:80"
+      - "5173:80"
     depends_on:
       - backend
 

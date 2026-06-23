@@ -1,18 +1,19 @@
 import passport from 'passport';
 import { Strategy as GitHubStrategy, Profile } from 'passport-github2';
 import type { VerifyCallback } from 'passport-oauth2';
-import { githubConfig } from '../config';
+import { appConfig } from '../config';
 import { User } from '../models/User';
 
 export function configurePassport(): void {
   passport.use(
     new GitHubStrategy(
       {
-        clientID: githubConfig.clientId,
-        clientSecret: githubConfig.clientSecret,
-        callbackURL: githubConfig.callbackUrl,
+        clientID: appConfig.github.clientId,
+        clientSecret: appConfig.github.clientSecret,
+        callbackURL: appConfig.github.callbackUrl,
+        scope: ['repo', 'admin:repo_hook'],
       },
-      async (_accessToken: string, _refreshToken: string, profile: Profile, done: VerifyCallback) => {
+      async (accessToken: string, _refreshToken: string, profile: Profile, done: VerifyCallback) => {
         try {
           let user = await User.findOne({ githubId: profile.id });
 
@@ -23,7 +24,12 @@ export function configurePassport(): void {
               displayName: profile.displayName,
               email: profile.emails?.[0]?.value,
               avatarUrl: profile.photos?.[0]?.value,
+              githubAccessToken: accessToken,
             });
+          } else {
+            // Update access token on each login to keep it current
+            user.githubAccessToken = accessToken;
+            await user.save();
           }
 
           return done(null, user);

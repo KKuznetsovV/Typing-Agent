@@ -1,40 +1,28 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import { configurePassport } from './passport';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
+import { appConfig } from './config';
+import routes from './routes';
+import webhookRoutes from './routes/webhook.routes';
 import { errorHandler } from './middleware/errorHandler';
-import { frontendConfig } from './config';
 
-export function createApp(): express.Application {
-  const app = express();
+const app = express();
 
-  // Body parsing
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+app.use('/api/webhooks', webhookRoutes);
 
-  // CORS — allow requests from the React client
-  app.use(
-    cors({
-      origin: frontendConfig.url,
-      credentials: true,
-    })
-  );
+app.use(express.json());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: appConfig.cors.origin,
+    credentials: true,
+  })
+);
+app.use(passport.initialize());
 
-  // Passport initialisation (no sessions — JWT only)
-  configurePassport();
-  app.use(passport.initialize());
+app.use('/api', routes);
 
-  // Mount routers
-  app.use('/auth', authRoutes);
-  app.use('/api/user', userRoutes);
+app.use(errorHandler);
 
-  // Health check
-  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
-
-  // Global error handler (must be registered last)
-  app.use(errorHandler);
-
-  return app;
-}
+export default app;
