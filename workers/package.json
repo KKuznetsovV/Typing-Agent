@@ -1,0 +1,27 @@
+{
+  "name": "workers",
+  "version": "1.0.0",
+  "description": "Workers service — AI agent workers that process SQS jobs",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.1075.0",
+    "config": "^4.4.1",
+    "dotenv": "^16.4.5",
+    "openai": "^6.44.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

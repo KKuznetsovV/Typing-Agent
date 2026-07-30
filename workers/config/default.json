@@ -1,0 +1,56 @@
+{
+  "authService": {
+    "url": "http://localhost:3000"
+  },
+  "serviceAuth": {
+    "secret": "change-me-service-auth-secret"
+  },
+  "openai": {
+    "apiKey": "",
+    "model": "gpt-4o"
+  },
+  "github": {
+    "agents": {
+      "backendDev": {
+        "name": "TypingAgent-BackendDev",
+        "email": "backend-dev@typing-agent.local",
+        "accessToken": ""
+      },
+      "frontendDev": {
+        "name": "TypingAgent-FrontendDev",
+        "email": "frontend-dev@typing-agent.local",
+        "accessToken": ""
+      },
+      "devOps": {
+        "name": "TypingAgent-DevOps",
+        "email": "devops@typing-agent.local",
+        "accessToken": ""
+      },
+      "codeReviewer": {
+        "name": "TypingAgent-CodeReviewer",
+        "email": "code-reviewer@typing-agent.local",
+        "accessToken": ""
+      }
+    }
+  },
+  "logging": {
+    "level": "info",
+    "serviceName": "workers"
+  },
+  "sqs": {
+    "region": "us-east-1",
+    "endpoint": "http://localhost:4566",
+    "queues": {
+      "techLead": "tech-lead-queue",
+      "backendDev": "backend-dev-queue",
+      "frontendDev": "frontend-dev-queue",
+      "devOps": "devops-queue",
+      "codeReviewer": "code-reviewer-queue"
+    },
+    "visibilityTimeoutSeconds": 3600,
+    "waitTimeSeconds": 20,
+    "pollIntervalMs": 5000,
+    "accessKeyId": "test",
+    "secretAccessKey": "test"
+  }
+}

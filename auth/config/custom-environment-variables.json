@@ -1,0 +1,28 @@
+{
+  "port": "PORT",
+  "mongoUri": "MONGO_URI",
+  "jwt": {
+    "secret": "JWT_SECRET",
+    "expiresIn": "JWT_EXPIRES_IN"
+  },
+  "github": {
+    "clientId": "GITHUB_CLIENT_ID",
+    "clientSecret": "GITHUB_CLIENT_SECRET",
+    "callbackUrl": "GITHUB_CALLBACK_URL",
+    "webhookUrl": "GITHUB_WEBHOOK_URL",
+    "webhookSecret": "GITHUB_WEBHOOK_SECRET"
+  },
+  "serviceAuth": {
+    "secret": "SERVICE_AUTH_SECRET"
+  },
+  "frontend": {
+    "url": "FRONTEND_URL"
+  },
+  "cors": {
+    "origin": "CORS_ORIGIN"
+  },
+  "logging": {
+    "level": "LOG_LEVEL",
+    "serviceName": "LOG_SERVICE_NAME"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "port": 3001,
+  "authService": {
+    "url": "http://localhost:3000"
+  },
+  "github": {
+    "webhookSecret": ""
+  },
+  "serviceAuth": {
+    "secret": "change-me-service-auth-secret"
+  },
+  "logging": {
+    "level": "info",
+    "serviceName": "webhooks"
+  },
+  "sqs": {
+    "region": "us-east-1",
+    "endpoint": "http://localhost:4566",
+    "queues": {
+      "techLead": "tech-lead-queue",
+      "backendDev": "backend-dev-queue",
+      "frontendDev": "frontend-dev-queue",
+      "devOps": "devops-queue",
+      "codeReviewer": "code-reviewer-queue"
+    },
+    "visibilityTimeoutSeconds": 3600,
+    "accessKeyId": "test",
+    "secretAccessKey": "test"
+  }
+}

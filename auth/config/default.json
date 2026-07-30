@@ -1,0 +1,28 @@
+{
+  "port": 3000,
+  "mongoUri": "mongodb://localhost:27017/typing-agent",
+  "jwt": {
+    "secret": "change-me-in-production",
+    "expiresIn": "7d"
+  },
+  "github": {
+    "clientId": "",
+    "clientSecret": "",
+    "callbackUrl": "http://localhost:3000/api/auth/github/callback",
+    "webhookUrl": "http://localhost:3001/api/webhooks/github",
+    "webhookSecret": ""
+  },
+  "serviceAuth": {
+    "secret": "change-me-service-auth-secret"
+  },
+  "frontend": {
+    "url": "http://localhost:5173"
+  },
+  "cors": {
+    "origin": "http://localhost:5173"
+  },
+  "logging": {
+    "level": "info",
+    "serviceName": "auth"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "webhooks",
+  "version": "1.0.0",
+  "description": "Webhooks service — receives GitHub events and routes them to SQS queues",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.1075.0",
+    "config": "^4.4.1",
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

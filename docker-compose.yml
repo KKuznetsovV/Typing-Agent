@@ -5,28 +5,169 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
 
-  backend:
-    build: ./backend
+  localstack:
+    image: localstack/localstack:4.0
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: sqs
+      AWS_DEFAULT_REGION: us-east-1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  auth:
+    build: ./auth
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: development
-      MONGO_URI: mongodb://mongodb:27017/oauth-app
+      MONGO_URI: mongodb://mongodb:27017/typing-agent
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       GITHUB_CALLBACK_URL: ${GITHUB_CALLBACK_URL:-http://localhost:3000/api/auth/github/callback}
-      GITHUB_WEBHOOK_URL: ${GITHUB_WEBHOOK_URL:-http://localhost:3000/api/webhooks/github}
+      GITHUB_WEBHOOK_URL: ${GITHUB_WEBHOOK_URL}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-dev-webhook-secret}
-      OPENAI_ENABLED: ${OPENAI_ENABLED:-false}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
-      OPENAI_ISSUE_WEBHOOK_INSTRUCTIONS: ${OPENAI_ISSUE_WEBHOOK_INSTRUCTIONS:-You are an issue triage assistant. Summarize the issue and suggest the first concrete implementation steps. Keep the response short and actionable.}
+      SERVICE_AUTH_SECRET: ${SERVICE_AUTH_SECRET:-change-me-service-auth-secret}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+
+  webhooks:
+    build: ./webhooks
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      AUTH_SERVICE_URL: http://auth:3000
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-dev-webhook-secret}
+      SERVICE_AUTH_SECRET: ${SERVICE_AUTH_SECRET:-change-me-service-auth-secret}
+      SQS_REGION: ${SQS_REGION:-us-east-1}
+      SQS_ENDPOINT: ${SQS_ENDPOINT:-http://localstack:4566}
+      SQS_QUEUE_TECH_LEAD: ${SQS_QUEUE_TECH_LEAD:-tech-lead-queue}
+      SQS_QUEUE_BACKEND_DEV: ${SQS_QUEUE_BACKEND_DEV:-backend-dev-queue}
+      SQS_QUEUE_FRONTEND_DEV: ${SQS_QUEUE_FRONTEND_DEV:-frontend-dev-queue}
+      SQS_QUEUE_DEVOPS: ${SQS_QUEUE_DEVOPS:-devops-queue}
+      SQS_QUEUE_CODE_REVIEWER: ${SQS_QUEUE_CODE_REVIEWER:-code-reviewer-queue}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    depends_on:
+      auth:
+        condition: service_started
+      localstack:
+        condition: service_healthy
+
+  worker-tech-lead:
+    build: ./workers
+    environment:
+      NODE_ENV: development
+      WORKER_TYPE: techLead
+      AUTH_SERVICE_URL: http://auth:3000
+      SERVICE_AUTH_SECRET: ${SERVICE_AUTH_SECRET:-change-me-service-auth-secret}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      SQS_REGION: ${SQS_REGION:-us-east-1}
+      SQS_ENDPOINT: ${SQS_ENDPOINT:-http://localstack:4566}
+      SQS_QUEUE_TECH_LEAD: ${SQS_QUEUE_TECH_LEAD:-tech-lead-queue}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    depends_on:
+      auth:
+        condition: service_started
+      localstack:
+        condition: service_healthy
+
+  worker-backend-dev:
+    build: ./workers
+    environment:
+      NODE_ENV: development
+      WORKER_TYPE: backendDev
+      AUTH_SERVICE_URL: http://auth:3000
+      SERVICE_AUTH_SECRET: ${SERVICE_AUTH_SECRET:-change-me-service-auth-secret}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      SQS_REGION: ${SQS_REGION:-us-east-1}
+      SQS_ENDPOINT: ${SQS_ENDPOINT:-http://localstack:4566}
+      SQS_QUEUE_BACKEND_DEV: ${SQS_QUEUE_BACKEND_DEV:-backend-dev-queue}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    depends_on:
+      auth:
+        condition: service_started
+      localstack:
+        condition: service_healthy
+
+  worker-frontend-dev:
+    build: ./workers
+    environment:
+      NODE_ENV: development
+      WORKER_TYPE: frontendDev
+      AUTH_SERVICE_URL: http://auth:3000
+      SERVICE_AUTH_SECRET: ${SERVICE_AUTH_SECRET:-change-me-service-auth-secret}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      SQS_REGION: ${SQS_REGION:-us-east-1}
+      SQS_ENDPOINT: ${SQS_ENDPOINT:-http://localstack:4566}
+      SQS_QUEUE_FRONTEND_DEV: ${SQS_QUEUE_FRONTEND_DEV:-frontend-dev-queue}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    depends_on:
+      auth:
+        condition: service_started
+      localstack:
+        condition: service_healthy
+
+  worker-devops:
+    build: ./workers
+    environment:
+      NODE_ENV: development
+      WORKER_TYPE: devOps
+      AUTH_SERVICE_URL: http://auth:3000
+      SERVICE_AUTH_SECRET: ${SERVICE_AUTH_SECRET:-change-me-service-auth-secret}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      SQS_REGION: ${SQS_REGION:-us-east-1}
+      SQS_ENDPOINT: ${SQS_ENDPOINT:-http://localstack:4566}
+      SQS_QUEUE_DEVOPS: ${SQS_QUEUE_DEVOPS:-devops-queue}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    depends_on:
+      auth:
+        condition: service_started
+      localstack:
+        condition: service_healthy
+
+  worker-code-reviewer:
+    build: ./workers
+    environment:
+      NODE_ENV: development
+      WORKER_TYPE: codeReviewer
+      AUTH_SERVICE_URL: http://auth:3000
+      SERVICE_AUTH_SECRET: ${SERVICE_AUTH_SECRET:-change-me-service-auth-secret}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      SQS_REGION: ${SQS_REGION:-us-east-1}
+      SQS_ENDPOINT: ${SQS_ENDPOINT:-http://localstack:4566}
+      SQS_QUEUE_CODE_REVIEWER: ${SQS_QUEUE_CODE_REVIEWER:-code-reviewer-queue}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    depends_on:
+      auth:
+        condition: service_started
+      localstack:
+        condition: service_healthy
 
   frontend:
     build:
@@ -36,7 +177,7 @@ services:
     ports:
       - "5173:80"
     depends_on:
-      - backend
+      - auth
 
 volumes:
   mongo_data:

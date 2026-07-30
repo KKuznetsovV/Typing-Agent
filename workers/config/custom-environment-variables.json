@@ -1,0 +1,56 @@
+{
+  "authService": {
+    "url": "AUTH_SERVICE_URL"
+  },
+  "serviceAuth": {
+    "secret": "SERVICE_AUTH_SECRET"
+  },
+  "openai": {
+    "apiKey": "OPENAI_API_KEY",
+    "model": "OPENAI_MODEL"
+  },
+  "github": {
+    "agents": {
+      "backendDev": {
+        "name": "GITHUB_AGENT_BACKEND_DEV_NAME",
+        "email": "GITHUB_AGENT_BACKEND_DEV_EMAIL",
+        "accessToken": "GITHUB_AGENT_BACKEND_DEV_TOKEN"
+      },
+      "frontendDev": {
+        "name": "GITHUB_AGENT_FRONTEND_DEV_NAME",
+        "email": "GITHUB_AGENT_FRONTEND_DEV_EMAIL",
+        "accessToken": "GITHUB_AGENT_FRONTEND_DEV_TOKEN"
+      },
+      "devOps": {
+        "name": "GITHUB_AGENT_DEVOPS_NAME",
+        "email": "GITHUB_AGENT_DEVOPS_EMAIL",
+        "accessToken": "GITHUB_AGENT_DEVOPS_TOKEN"
+      },
+      "codeReviewer": {
+        "name": "GITHUB_AGENT_CODE_REVIEWER_NAME",
+        "email": "GITHUB_AGENT_CODE_REVIEWER_EMAIL",
+        "accessToken": "GITHUB_AGENT_CODE_REVIEWER_TOKEN"
+      }
+    }
+  },
+  "logging": {
+    "level": "LOG_LEVEL",
+    "serviceName": "LOG_SERVICE_NAME"
+  },
+  "sqs": {
+    "region": "SQS_REGION",
+    "endpoint": "SQS_ENDPOINT",
+    "queues": {
+      "techLead": "SQS_QUEUE_TECH_LEAD",
+      "backendDev": "SQS_QUEUE_BACKEND_DEV",
+      "frontendDev": "SQS_QUEUE_FRONTEND_DEV",
+      "devOps": "SQS_QUEUE_DEVOPS",
+      "codeReviewer": "SQS_QUEUE_CODE_REVIEWER"
+    },
+    "visibilityTimeoutSeconds": "SQS_VISIBILITY_TIMEOUT_SECONDS",
+    "waitTimeSeconds": "SQS_WAIT_TIME_SECONDS",
+    "pollIntervalMs": "SQS_POLL_INTERVAL_MS",
+    "accessKeyId": "AWS_ACCESS_KEY_ID",
+    "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+  }
+}
